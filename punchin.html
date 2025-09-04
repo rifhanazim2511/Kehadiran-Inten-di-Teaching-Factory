@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Punch In Kehadiran</title>
+    <script>
+      // Lokasi Teaching Factory UTeM (contoh koordinat)
+      const TF_LAT = 2.3113;
+      const TF_LNG = 102.3217;
+      const ALLOWED_RADIUS = 150; // meter
+
+      function toRad(Value) {
+        return (Value * Math.PI) / 180;
+      }
+
+      function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371e3; // meter
+        const φ1 = toRad(lat1);
+        const φ2 = toRad(lat2);
+        const Δφ = toRad(lat2 - lat1);
+        const Δλ = toRad(lon2 - lon1);
+
+        const a =
+          Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+          Math.cos(φ1) * Math.cos(φ2) *
+          Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c; // dalam meter
+      }
+
+      function checkLocation() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const userLat = pos.coords.latitude;
+              const userLng = pos.coords.longitude;
+              const dist = getDistance(userLat, userLng, TF_LAT, TF_LNG);
+
+              if (dist <= ALLOWED_RADIUS) {
+                window.location.href = "https://forms.gle/XLkz8mW1cRug1m5Q8"; // Punch In Form
+              } else {
+                alert("❌ Anda berada di luar kawasan TF. Punch In tidak dibenarkan.");
+              }
+            },
+            () => {
+              alert("⚠️ Tak dapat kesan lokasi. Sila hidupkan GPS.");
+            }
+          );
+        } else {
+          alert("Browser anda tidak sokong GPS.");
+        }
+      }
+    </script>
+  </head>
+  <body style="text-align:center; font-family:Arial">
+    <h2>Punch In Kehadiran</h2>
+    <p>Sila tekan butang di bawah untuk Punch In (GPS akan disemak).</p>
+    <button onclick="checkLocation()" style="padding:10px 20px; font-size:18px;">📍 Punch In</button>
+  </body>
+</html>
